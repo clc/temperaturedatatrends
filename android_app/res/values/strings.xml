@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Temperature Data Trends</string>
+    <string name="radio_well">Well</string>
+    <string name="radio_sick">Sick</string>
+    <string name="page00">Welcome to Temperature Data Trends.\n\nSwipe left to learn more about the program.\n\nLet\'s get started.</string>
+    <string name="page01">The measurements are shared with Public Health officials as part of Fever Watch.\n\nPublic Health officials will monitor the measurements and may contact you.</string>
+    <string name="page02">Use the provided thermometer.\n\nDo not eat or drink immediately prior to taking your temperature.</string>
+    <string name="page03">Please confirm your user ID. If your user ID is incorrect, please contact Public Health Services.</string>
+    <string name="patientid">User ID</string>
+    <string name="ok">OK</string>
+    <string name="temperature_recorded">Temperature recorded!</string>
+    <string name="timesincelastmeasurement" formatted="false">%d hr and %d min since last measurement.</string>
+    <string name="retake">Please take your temperature again.</string>
+    <string name="patientidsaved">User ID saved!</string>
+    <string name="pleasetaketemperature">Please take your temperature (°F)</string>
+    <string name="notification">Please take your temperature</string>
+    <string name="submit">Submit to\n</string>
+    <string name="save">Save</string>
+    <string name="viewhistory">View Temperature History</string>
+    <string name="history">History</string>
+</resources>

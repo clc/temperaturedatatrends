@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!-- extend one of the Theme.AppCompat themes -->
+<style name="Theme.MyTheme" parent="android:Theme.Holo.Light">
+
+</style>
+</resources>

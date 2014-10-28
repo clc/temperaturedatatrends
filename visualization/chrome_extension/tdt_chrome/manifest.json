@@ -1,0 +1,23 @@
+{
+  "name": "TDT",
+  "version": "1.0",
+  "description": "Generates TDT links from Forms. Exports the TDT data in HTML out to a local HTTP server.",
+  "permissions": [
+    "webRequest",
+    "http://*/*", "https://*/*", "*://*/*",
+    "http://localhost:8000/",
+    "<all_urls>"
+  ],
+  "background": {
+    "page": "background.html"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval' http://localhost:8000 https://localhost:8000 ; object-src 'self'",
+
+  "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "scraper.js" ],
+      "matches": [ "https://docs.google.com/*" ],
+      "run_at": "document_start"
+   } ],
+  "manifest_version": 2
+}
