@@ -48,11 +48,12 @@ public class TosActivity extends Activity {
 
         final Activity self = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.tos_title);
         SpannableString tosSpan;
         if (isActivated) {
+            builder.setTitle(R.string.tos_title_publichealth);
             tosSpan = new SpannableString(Html.fromHtml(getString(R.string.tos_publichealth)));
         } else {
+            builder.setTitle(R.string.tos_title_local);
             tosSpan = new SpannableString(Html.fromHtml(getString(R.string.tos_local)));
         }
         final TextView message = new TextView(this);
