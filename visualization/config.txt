@@ -1,0 +1,7 @@
+Plotly Username =
+Plotly API Key =
+Max Temperature Flag = 
+Last Temperature Flag (Hours) = 
+Senders Email = 
+Senders Email Password =
+Receivers Email = 

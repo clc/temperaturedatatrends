@@ -18,6 +18,8 @@
 Visualization for Temperature Data Trends.
 
 Usage:
+0. Update config.txt file with your actual information.
+
 1. Run this file by typing the following at your command prompt:
 python thermo_open.py 8001
 
@@ -204,9 +206,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			a2 = "0"+a2
 		if len(a4) == 1:
 			a4 = "0"+a4
-		print a3, a1, a2, a4, a5, a6
 		d = datetime(int(a3), int(a1), int(a2), int(float(a4)), int(float(a5)), int(float(a6)))
-		print d
 		unix = time.mktime(d.timetuple())
 		newt.append(d)
 		unix_time.append(unix)
@@ -216,7 +216,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	df['timestamp2'] = newt
 	df['unix_time'] = unix_time
 	a = []
-	with open("config.txt") as f:
+	with open(wd+"/config.txt") as f:
    		for i in f:
        			a.append(i.strip())
     	f.close()
@@ -872,7 +872,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	links["links"] = g
 	
 	print "DO NOT REFRESH PAGE, re-writing .html file now."
-	html_file = "dashboard.html"
+	html_file = wd+"/dashboard.html"
 	f = open(html_file,'w')
 	f.write("""
 	<html>
