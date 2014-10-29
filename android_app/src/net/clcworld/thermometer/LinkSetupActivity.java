@@ -102,12 +102,13 @@ public class LinkSetupActivity extends Activity {
             return;
         }
         Editor edit = prefs.edit();
+        edit.clear();
         edit.putString("targetUrl", targetUrl);
         edit.putString("idField", idField);
         edit.putString("tempField", tempField);
         edit.putString("feelingField", feelingField);
         edit.putString("ID", idValue);
-        edit.putString("DEST", destValue);
+        edit.putString("DEST", destValue.replaceAll("%20", " "));
         edit.commit();
 
         finish();

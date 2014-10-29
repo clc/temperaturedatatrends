@@ -103,7 +103,7 @@ var idField = "";
 var tempField = "";
 var feelingField = "";
 var targetUrl = "";
-var destValue = "PublicHealthServices";
+var destValue = "public%20health%20agency";
 
 function outputText() {
   var idValue = document.getElementById("tdtInput").value;

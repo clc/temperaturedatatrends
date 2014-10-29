@@ -43,10 +43,12 @@ import csv
 import string
 import plotly.plotly as py
 from plotly.graph_objs import *
-#import numpy as np
 import os
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+import smtplib
+
+
 
 
 if len(sys.argv) > 2:
@@ -137,10 +139,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	df2["user"] = user
 	df2["temp"] = temp
 	df2["status"] = status
-
 	df2.to_csv("data.csv")
-	
-	
 	
 	wd = os.getcwd()
 	df1 = pd.read_csv(wd+"/data.csv")
@@ -187,6 +186,8 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	df.to_csv("data.csv")
 	newt = []
 	unix_time = [] 
+
+		
 	for p in df["timestamp"]:
 		p2 = p.find(" ")
 		p3 = p.find("/")
@@ -203,26 +204,42 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			a2 = "0"+a2
 		if len(a4) == 1:
 			a4 = "0"+a4
-
-#		num = float(a1+a2+a3+a4+a5+a6)
-#		print num, p
-		d = datetime(int(a3), int(a1), int(a2), int(a4), int(a5), int(a6))
+		print a3, a1, a2, a4, a5, a6
+		d = datetime(int(a3), int(a1), int(a2), int(float(a4)), int(float(a5)), int(float(a6)))
+		print d
 		unix = time.mktime(d.timetuple())
 		newt.append(d)
 		unix_time.append(unix)
 	time_now = time.strftime("%Y-%m-%d %H:%M:%S")
 	print time_now
 	time1 = []
-
 	df['timestamp2'] = newt
 	df['unix_time'] = unix_time
+	a = []
+	with open("config.txt") as f:
+   		for i in f:
+       			a.append(i.strip())
+    	f.close()
+	username = a[0][a[0].find("=")+1:].strip()
+	api_key = a[1][a[1].find("=")+1:].strip()
+	max_temp_flag = float(str(a[2][a[2].find("=")+1:]).strip())
+	last_temp_flag = int(str(a[3][a[3].find("=")+1:]).strip())
+	senders_email = a[4][a[4].find("=")+1:].strip()
+	senders_password = a[5][a[5].find("=")+1:].strip()
+	recievers_email = a[6][a[6].find("=")+1:].strip()
+	
+	from_addr = senders_email
+	to_addr_list = [recievers_email]
+	login = senders_email
+	password = senders_password
+
 	ids = df["user"]
 	ids1 = list(set(ids))
 	ids1 = sorted(ids1)
 	print len(ids)
 	print len(ids1)
 	stan = [98.6,98.6]
-	fever = [100.5,100.5]
+	fever = [max_temp_flag,max_temp_flag]
 	timestamp3 = []
 	numtime = []
 	g = 0
@@ -237,28 +254,40 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		a3 = p[p4:p4+4]
 		a4 = p[p4+5:p5]
 		a5 = p[p5+1:p5+3]
-		a6 = p[p5+4:-2]
+		a6 = p[p5+4:-2]			
+			
 
 		if len(a2) == 1:
 			a2 = "0"+a2
 		if len(a4) == 1:
 			a4 = "0"+a4
-		a21 = str(int(a2)+1)
-		num1 = float(a1+a21+a3+a4+a5+a6)
-		time_now1 = time.strftime("%m%d%Y%H%M%S")
-		time_now1 = int(time_now1)
-		if num1 <= time_now1:
+
+		num1 = datetime(int(a3), int(a1), int(a2), int(a4), int(a5), int(a6))
+		time_flag = datetime.now() - timedelta(hours=last_temp_flag) 
+
+		if num1 <= time_flag:
 			numtime.append("No")
 		else:
 			numtime.append("Yes")
 	df4["24hrs"] = numtime
+	
+	def sendemail(from_addr, to_addr_list,
+			subject, message,
+			login, password,
+			smtpserver='smtp.gmail.com:587'):
+		header  = 'From: %s\n' % from_addr
+		header += 'To: %s\n' % ','.join(to_addr_list)
+	# 	header += 'Cc: %s\n' % ','.join(cc_addr_list)
+		header += 'Subject: %s\n\n' % subject
+		message = header + message
 
-	a = []
-	with open("config.txt") as f:
-   		for i in f:
-       			a.append(i.rstrip('\n'))
-	username = a[0]
-	api_key = a[1]
+		server = smtplib.SMTP(smtpserver)
+		server.starttls()
+		server.login(login,password)
+		problems = server.sendmail(from_addr, to_addr_list, message)
+		server.quit()
+	
+	
 ## start aggregate graph
 	time_min1 = df["timestamp2"].min()
 	time1.append(time_min1)
@@ -271,8 +300,8 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		x = time1,
 		y = fever,
 		mode = 'lines',
-		name = '100.5',
-		text = id3["timestamp2"],
+		name = str(max_temp_flag),
+		text = time1,
 		marker=Marker(
 			color='rgb(243,16,16)'
 			),
@@ -286,7 +315,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		y = stan,
 		mode = 'lines',
 		name = '98.6',
-		text = id3["timestamp2"],
+		text = time1,
 		marker=Marker(
 			color='rgb(62,219,62)'
 			),
@@ -437,20 +466,153 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	plot_url_main = py.plot(fig, filename=name, auto_open=False, world_readable=False, width=1500)
 	for i in ids1:
 		id4 = df[df["user"] == i]
-		data = Data([
-			Scatter(
-				x = id4['timestamp2'],
-				y = id4['temp'],
-				mode='lines+markers',
-				name = i,
-				text = id4['timestamp2'],
-				)
-			])
-		plot_url_main = py.plot(data, filename=name, fileopt='append', world_readable=False, auto_open=False)
-		print "summary chart ..."
-	print plot_url_main
-		
-	
+		data.append(Scatter(
+			x = id4['timestamp2'],
+			y = id4['temp'],
+			mode='lines+markers',
+			name = i,
+			text = id4['timestamp2']))
+    
+	layout = Layout(
+		title="All Users",
+		titlefont=Font(
+		family='',
+		size=0,
+		color=''
+		),
+		font=Font(
+		family='"Open sans", verdana, arial, sans-serif',
+		size=12,
+		color='#444'
+		),
+		showlegend=True,
+		autosize=True,
+		width=1631,
+		height=553,
+		xaxis=XAxis(
+		title='timestamp',
+		titlefont=Font(
+			family='',
+			size=0,
+			color=''
+		),
+		range=[time_min1, time_now],
+		domain=[0, 1],
+		type='date',
+		rangemode='normal',
+		autorange=False,
+		showgrid=False,
+		zeroline=True,
+		showline=True,
+		autotick=True,
+		nticks=0,
+		ticks='',
+		showticklabels=True,
+		tick0=0,
+		dtick=1,
+		ticklen=5,
+		tickwidth=1,
+		tickcolor='#444',
+		tickangle='-45',
+		tickfont=Font(
+			family='',
+			size=0,
+			color=''
+		),
+		exponentformat='B',
+		showexponent='all',
+		mirror=False,
+		gridcolor='#eee',
+		gridwidth=1,
+		zerolinecolor='#444',
+		zerolinewidth=1,
+		linecolor='#444',
+		linewidth=1,
+		anchor='y',
+		overlaying=False,
+		position=0
+		),
+		yaxis=YAxis(
+		title='temp',
+		titlefont=Font(
+			family='',
+			size=0,
+			color=''
+		),
+		range=[92, 106],
+		domain=[0, 1],
+		type='linear',
+		rangemode='normal',
+		autorange=False,
+		showgrid=False,
+		zeroline=True,
+		showline=False,
+		autotick=True,
+		nticks=0,
+		ticks='',
+		showticklabels=True,
+		tick0=0,
+		dtick=1,
+		ticklen=5,
+		tickwidth=1,
+		tickcolor='#444',
+		tickangle='auto',
+		tickfont=Font(
+			family='',
+			size=0,
+			color=''
+		),
+		exponentformat='B',
+		showexponent='all',
+		mirror=False,
+		gridcolor='#eee',
+		gridwidth=1,
+		zerolinecolor='#444',
+		zerolinewidth=1,
+		linecolor='#444',
+		linewidth=1,
+		anchor='x',
+		overlaying=False,
+		position=0
+		),
+		legend=Legend(
+		x=1.02,
+		y=1,
+		traceorder='normal',
+		font=Font(
+			family='',
+			size=0,
+			color=''
+		),
+
+		bgcolor='#fff',
+		bordercolor='#444',
+		borderwidth=0,
+		xanchor='left',
+		yanchor='top'
+		),
+		margin=Margin(
+		l=80,
+		r=80,
+		b=110,
+		t=100,
+		pad=0,
+		autoexpand=True
+		),
+		paper_bgcolor='#fff',
+		plot_bgcolor='#fff',
+		hovermode='x',
+		dragmode='zoom',
+		separators='.,',
+		barmode='group',
+		bargap=0.2,
+		bargroupgap=0,
+		boxmode='overlay',
+		hidesources=False
+	)
+	fig = Figure(data=data, layout=layout)
+	plot_url_main = py.plot(data, filename=name, world_readable=False, auto_open=False)
+	print "summary chart {}".format(plot_url_main)
 
 ### looping through personal graphs
 	diff = []
@@ -458,6 +620,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	g = []
 	l = []
 	for i in df4["user"]:
+		time1 = []
 		id1 = df[df["user"] == i]
 		id2 = id1.sort(["unix_time"], ascending=True)
 		time_min = id2["timestamp2"].min()
@@ -483,7 +646,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			x = time1,
 			y = fever,
 			mode = 'lines',
-			name = '100.5',
+			name = str(max_temp_flag),
 			text = time1,
 			marker=Marker(
 				color='rgb(243,16,16)'
@@ -541,11 +704,11 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			    size=0,
 			    color=''
 			),
-			range=[time_min, time_now],
+			range=[0,0],
 			domain=[0, 1],
 			type='date',
 			rangemode='normal',
-			autorange=False,
+			autorange=True,
 			showgrid=False,
 			zeroline=True,
 			showline=True,
@@ -651,7 +814,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		    separators='.,',
 		    barmode='group',
 		    bargap=0.85,
-		    bargroupgap=0,
+		    bargroupgap=0.85,
 		    boxmode='overlay',
 		    hidesources=False,
 		yaxis2=YAxis(
@@ -707,7 +870,8 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	links = pd.DataFrame()
 	links["ids"] = l
 	links["links"] = g
-
+	
+	print "DO NOT REFRESH PAGE, re-writing .html file now."
 	html_file = "dashboard.html"
 	f = open(html_file,'w')
 	f.write("""
@@ -724,7 +888,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		<TH>Last Temp</TH>
 		<TH>Max Temp</TH>
 		<TH>Last Status</TH>
-		<TH>Temp within 24hrs</TH>
+		<TH>Temp Within """+str(last_temp_flag)+"""hrs</TH>
 	</TR>
 	""")
 	f.close()
@@ -733,29 +897,38 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	with open(html_file, 'a') as f:
 		df4 = df4.sort(["user"], ascending=True)
 		for i in df4["max_temp"]:
-			if float(df4["max_temp"][y]) >= 100.5 or df4["last_status"][y] == "Sick" or df4["24hrs"][y] == "No":
-				print numtime[y], time_now1
-				f.write("""
-				<TR>
-					<TD bgcolor="red"><b>"""+str(x)+"""</b></TD>
-					<TD bgcolor="red"><a href="""+links["links"][y]+""".embed target="_blank">"""+df4["user"][y]+"""</a></TD>
-					<TD bgcolor="red">"""+df4["last_entry"][y]+"""</TD>
-					<TD bgcolor="red">"""+df4["last_temp"][y]+"""</TD>
-					<TD bgcolor="red">"""+df4["max_temp"][y]+"""</TD>
-					<TD bgcolor="red">"""+df4["last_status"][y]+"""</TD>
-					<TD bgcolor="red">"""+df4["24hrs"][y]+"""</TD>
-				</TR>
-				""")
-			else:			
-				print numtime[y], time_now1				
-				f.write("""
+			f.write("""
 				<TR>
 					<TD><b>"""+str(x)+"""</b></TD>
 					<TD><a href="""+links["links"][y]+""".embed target="_blank">"""+df4["user"][y]+"""</a></TD>
 					<TD>"""+df4["last_entry"][y]+"""</TD>
 					<TD>"""+df4["last_temp"][y]+"""</TD>
+				""")
+			if float(df4["max_temp"][y]) >= max_temp_flag:
+				f.write("""
+					<TD bgcolor="red">"""+df4["max_temp"][y]+"""</TD>
+					""")
+			else:
+				f.write("""
 					<TD>"""+df4["max_temp"][y]+"""</TD>
+				""")
+				
+			if df4["last_status"][y] == "Sick":
+				f.write("""
+					<TD bgcolor="red">"""+df4["last_status"][y]+"""</TD>
+						""")
+			else:
+				f.write("""
 					<TD>"""+df4["last_status"][y]+"""</TD>
+				""")
+				
+			if df4["24hrs"][y] == "No":
+				f.write("""
+					<TD bgcolor="red">"""+df4["24hrs"][y]+"""</TD>
+				</TR>
+				""")
+			else:
+				f.write("""
 					<TD>"""+df4["24hrs"][y]+"""</TD>
 				</TR>
 				""")
@@ -770,11 +943,29 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		</html>
 		""")
 		f.close()
+		print "Open dashboard file now"
+		x = 1
+		y = 0
+		df4 = df4.sort(["user"], ascending=True)
+		for i in df4["max_temp"]:
+			if df4["24hrs"][y] == "No" or df4["last_status"][y] == "Sick" or float(df4["max_temp"][y]) >= max_temp_flag:
+				subject = df4["user"][y]+" has been flagged." 
+				message = " "
+				if df4["24hrs"][y] == "No":
+					message = message+"The user's last temperature was taken more than "+str(last_temp_flag)+" hours ago, at "+str(df4["last_entry"][y])+"."
+				if df4["last_status"][y] == "Sick":
+					message = message+" The user's status was just reported as "+df4["last_status"][y]+" at "+df4["last_entry"][y]+"."
+				if float(df4["max_temp"][y]) >= max_temp_flag:
+					message = message+" The user's max temperature is = "+str(float(df4["max_temp"][y]))+"."
+				
+				sendemail(from_addr, to_addr_list, subject, message, login, password)
+			print "sending emails ..."
+			x += 1
+			y += 1
         logging.warning("\n")
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 	end_time = time.time()
 	print end_time-start_time
-	print "Open dashboard file now"
 	time.sleep(5)
 
 Handler = ServerHandler

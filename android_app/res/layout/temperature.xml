@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dip"
         android:textColor="#FF000000"
-        android:hint="@string/pleasetaketemperature"
+        android:hint="@string/pleaseentertemperature"
         android:textColorHint="#FF808080"
         android:inputType="numberDecimal" />
 

@@ -25,6 +25,10 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.widget.TextView;
 
 import net.clcworld.thermometer.setuppager.SetupPagerActivity;
 
@@ -44,13 +48,17 @@ public class TosActivity extends Activity {
 
         final Activity self = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Terms of Service");
+        builder.setTitle(R.string.tos_title);
+        SpannableString tosSpan;
         if (isActivated) {
-            builder.setMessage(
-                    "Terms of Service text for use with Public Health Services goes here.");
+            tosSpan = new SpannableString(Html.fromHtml(getString(R.string.tos_publichealth)));
         } else {
-            builder.setMessage("Terms of Service text for local use only goes here.");
+            tosSpan = new SpannableString(Html.fromHtml(getString(R.string.tos_local)));
         }
+        final TextView message = new TextView(this);
+        message.setText(tosSpan);
+        message.setMovementMethod(LinkMovementMethod.getInstance());
+        builder.setView(message);
 
         builder.setPositiveButton("Accept", new OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {

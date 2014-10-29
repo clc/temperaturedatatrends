@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout.LayoutParams;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.ScrollView;
@@ -169,6 +170,7 @@ public class TakeTemperatureReadingActivity extends Activity {
                 AlertDialog dialog = alertDialogBuilder.create();
                 TextView text = new TextView(mSelf);
                 text.setTextSize(16);
+                text.setPadding(40, 40, 40, 40);
                 text.setText(mHistory);
                 ScrollView scroll = new ScrollView(mSelf);
                 scroll.addView(text);
@@ -190,7 +192,6 @@ public class TakeTemperatureReadingActivity extends Activity {
         }
         Toast.makeText(mSelf, R.string.temperature_recorded,
                 Toast.LENGTH_SHORT).show();
-
         String entry = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(
                 new Date()) + "    " + temperature + "°F    " + feeling + "\n";
         Editor editor = mPrefs.edit();
