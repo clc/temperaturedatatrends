@@ -39,7 +39,7 @@ function periodicCheck(){
     var currentTime = new Date().getTime();
     if (msTimestamp + maxTimeBetweenReadings < currentTime) {
       MailApp.sendEmail(recipients, "[TDT ALERT]: Missed latest temperature check in from " + rowContents[0], rowContents[0] + " last checked in at " + rowContents[1]);
-      var target = "B" + summarySheet.getLastRow();
+      var target = "B" + i;
       var range = summarySheet.getRange(target + ":" + target);
       range.setBackground("red");
     }
