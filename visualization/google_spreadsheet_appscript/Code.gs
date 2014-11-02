@@ -84,11 +84,7 @@ function sendEmail(timestamp, userId, temperature, feeling) {
 function updateSummarySheet(timestamp, userId, temperature, feeling) {
   var summarySheet;
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
-  try {
-    summarySheet = targetSpreadSheet.insertSheet("Summary");
-    summarySheet.appendRow(["UserID", "Last entry", "Last temperature (F)", "Max temperature (F)", "Feeling"]);
-  } catch (e) {
-  }
+  setupSummarySheet();
   summarySheet = targetSpreadSheet.getSheetByName("Summary");
   var maxTemp = temperature;
   for (var i=1; i <= summarySheet.getLastRow(); i++) {
@@ -126,11 +122,12 @@ function updateIndividualSheet(timestamp, userId, temperature, feeling) {
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
   try {
     individualSheet = targetSpreadSheet.insertSheet(userId);
-    individualSheet.appendRow(["Timestamp", "Temperature (F)", "Feeling"]);
+    individualSheet.appendRow(["Timestamp", "Temperature (F)", "Feeling", "Threshold (F)"]);
+    sortSheets();
   } catch (e) {
   }
   individualSheet = targetSpreadSheet.getSheetByName(userId);
-  individualSheet.appendRow([timestamp, temperature, feeling]);
+  individualSheet.appendRow([timestamp, temperature, feeling, temperatureThreshold]);
 }
 
 function onOpen() {
@@ -146,8 +143,9 @@ function showChart() {
     if ((sheet.getName() != nameOfMainResponsesSheetTab) && (sheet.getName() != "Summary")) {
       var range1 = sheet.getRange("A1:A" + sheet.getLastRow());
       var range2 = sheet.getRange("B1:B" + sheet.getLastRow());
+      var range3 = sheet.getRange("D1:D" + sheet.getLastRow());
       var chartBuilder = sheet.newChart();
-      chartBuilder.addRange(range1).addRange(range2)
+      chartBuilder.addRange(range1).addRange(range2).addRange(range3)
           .setChartType(Charts.ChartType.LINE)
           .setPosition(2, 2, 0, 0)
           .setOption('title', sheet.getName());
@@ -155,6 +153,26 @@ function showChart() {
     } else {
       SpreadsheetApp.getUi().alert("Please go a sheet for a specific User ID first.");
     }
+}
+
+function sortSheets () {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetNameArray = [];
+  var sheets = ss.getSheets();
+ 
+  for (var i = 0; i < sheets.length; i++) {
+    sheetNameArray.push(sheets[i].getName());
+  }
+ 
+  sheetNameArray.sort();
+ 
+  for( var j = 0; j < sheets.length; j++ ) {
+    ss.setActiveSheet(ss.getSheetByName(sheetNameArray[j]));
+    ss.moveActiveSheet(j + 1);
+  }
+  
+  ss.setActiveSheet(ss.getSheetByName(nameOfMainResponsesSheetTab));
+  ss.setActiveSheet(ss.getSheetByName("Summary"));
 }
 
 
