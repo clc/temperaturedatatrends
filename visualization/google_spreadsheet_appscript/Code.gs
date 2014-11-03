@@ -52,9 +52,10 @@ function onFormSubmit(e) {
   var userId = e.namedValues['UserID'][0];
   var temperature = parseFloat(e.namedValues['Temperature (F)'][0]);
   var feeling = e.namedValues['Feeling'][0];
-  sendEmail(timestamp, userId, temperature, feeling);
-  updateSummarySheet(timestamp, userId, temperature, feeling);
-  updateIndividualSheet(timestamp, userId, temperature, feeling);
+  var symptoms = e.namedValues['Symptoms'][0];
+  updateSummarySheet(timestamp, userId, temperature, feeling, symptoms);
+  updateIndividualSheet(timestamp, userId, temperature, feeling, symptoms);
+  sendEmail(timestamp, userId, temperature, feeling, symptoms);
 }
 
 // 5. DONE!
@@ -63,13 +64,16 @@ function setupSummarySheet(){
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
   try {
     var summarySheet = targetSpreadSheet.insertSheet("Summary");
-    summarySheet.appendRow(["UserID", "Last entry", "Last temperature (F)", "Max temperature (F)", "Feeling"]);
+    summarySheet.appendRow(["UserID", "Last entry", "Last temperature (F)", "Max temperature (F)", "Feeling", "Symptoms"]);
   } catch (e) {
   }
 }
 
-function sendEmail(timestamp, userId, temperature, feeling) {
+function sendEmail(timestamp, userId, temperature, feeling, symptoms) {
   var message = timestamp + " " + userId + " " + temperature + " " + feeling;
+  if (symptoms.length > 0) {
+    message = message + "  Symptoms:" + symptoms;
+  }
   var subject = ""
   if (temperature >= temperatureThreshold) {
     subject = "[TDT ALERT]: High temperature (" + temperature + " F) reported by " + userId + ".";
@@ -81,7 +85,7 @@ function sendEmail(timestamp, userId, temperature, feeling) {
   }
 }
 
-function updateSummarySheet(timestamp, userId, temperature, feeling) {
+function updateSummarySheet(timestamp, userId, temperature, feeling, symptoms) {
   var summarySheet;
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
   setupSummarySheet();
@@ -99,7 +103,7 @@ function updateSummarySheet(timestamp, userId, temperature, feeling) {
       break;
     }
   }
-  summarySheet.appendRow([userId, timestamp, temperature, maxTemp, feeling]);
+  summarySheet.appendRow([userId, timestamp, temperature, maxTemp, feeling, symptoms]);
   if (temperature >= temperatureThreshold) {
      var target = "C" + summarySheet.getLastRow();
      var range = summarySheet.getRange(target + ":" + target);
@@ -117,17 +121,17 @@ function updateSummarySheet(timestamp, userId, temperature, feeling) {
   }
 }
 
-function updateIndividualSheet(timestamp, userId, temperature, feeling) {
+function updateIndividualSheet(timestamp, userId, temperature, feeling, symptoms) {
   var individualSheet;
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
   try {
     individualSheet = targetSpreadSheet.insertSheet(userId);
-    individualSheet.appendRow(["Timestamp", "Temperature (F)", "Feeling", "Threshold (F)"]);
+    individualSheet.appendRow(["Timestamp", "Temperature (F)", "Feeling", "Symptoms", "Threshold (F)"]);
     sortSheets();
   } catch (e) {
   }
   individualSheet = targetSpreadSheet.getSheetByName(userId);
-  individualSheet.appendRow([timestamp, temperature, feeling, temperatureThreshold]);
+  individualSheet.appendRow([timestamp, temperature, feeling, symptoms, temperatureThreshold]);
 }
 
 function onOpen() {
@@ -143,7 +147,7 @@ function showChart() {
     if ((sheet.getName() != nameOfMainResponsesSheetTab) && (sheet.getName() != "Summary")) {
       var range1 = sheet.getRange("A1:A" + sheet.getLastRow());
       var range2 = sheet.getRange("B1:B" + sheet.getLastRow());
-      var range3 = sheet.getRange("D1:D" + sheet.getLastRow());
+      var range3 = sheet.getRange("E1:E" + sheet.getLastRow());
       var chartBuilder = sheet.newChart();
       chartBuilder.addRange(range1).addRange(range2).addRange(range3)
           .setChartType(Charts.ChartType.LINE)
@@ -174,6 +178,7 @@ function sortSheets () {
   ss.setActiveSheet(ss.getSheetByName(nameOfMainResponsesSheetTab));
   ss.setActiveSheet(ss.getSheetByName("Summary"));
 }
+
 
 
 
