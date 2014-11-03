@@ -55,6 +55,7 @@ public class LinkSetupActivity extends Activity {
         String idField = "";
         String tempField = "";
         String feelingField = "";
+        String symptomsField = "";
         String idValue = "";
         String destValue = "";
 
@@ -68,6 +69,8 @@ public class LinkSetupActivity extends Activity {
                 tempField = arg.replace("tempField=", "");
             } else if (arg.startsWith("feelingField=")) {
                 feelingField = arg.replace("feelingField=", "");
+            } else if (arg.startsWith("symptomsField=")) {
+            	symptomsField = arg.replace("symptomsField=", "");
             } else if (arg.startsWith("idValue=")) {
                 idValue = arg.replace("idValue=", "");
             } else if (arg.startsWith("destValue=")) {
@@ -77,6 +80,7 @@ public class LinkSetupActivity extends Activity {
 
         if (targetUrl.isEmpty() || idField.isEmpty() || tempField.isEmpty()
                 || feelingField.isEmpty()
+                || symptomsField.isEmpty()
                 || idValue.isEmpty()
                 || destValue.isEmpty()) {
             // Something went horribly wrong, bail!
@@ -107,6 +111,7 @@ public class LinkSetupActivity extends Activity {
         edit.putString("idField", idField);
         edit.putString("tempField", tempField);
         edit.putString("feelingField", feelingField);
+        edit.putString("symptomsField", symptomsField);
         edit.putString("ID", idValue);
         edit.putString("DEST", destValue.replaceAll("%20", " "));
         edit.commit();

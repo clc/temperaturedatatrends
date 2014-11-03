@@ -102,6 +102,7 @@ window.setTimeout(scrapeContent, 1000);
 var idField = "";
 var tempField = "";
 var feelingField = "";
+var symptomsField = "";
 var targetUrl = "";
 var destValue = "public%20health%20agency";
 
@@ -111,6 +112,7 @@ function outputText() {
   linkText = linkText + "idField=" + idField + "&";
   linkText = linkText + "tempField=" + tempField + "&";
   linkText = linkText + "feelingField=" + feelingField + "&";
+  linkText = linkText + "symptomsField=" + symptomsField + "&";
   linkText = linkText + "idValue=" + idValue + "&";
   linkText = linkText + "destValue=" + destValue + "&";
   linkText = linkText + "targetUrl=" + targetUrl;
@@ -139,20 +141,22 @@ function makeTdtLinkGenerator() {
 
 function initFormGenerator() {
   var inputs = document.getElementsByTagName("input");
-  if (inputs.length > 3) {
-    if ((inputs[0].type == "text") &&
-        (inputs[1].type == "text") &&
-        (inputs[2].type == "radio")) {
-      idField = inputs[0].name;
-      tempField = inputs[1].name;
-      feelingField = inputs[2].name;
+  if (inputs.length > 9) {
+    if ((inputs[0].type == "checkbox") &&
+        (inputs[9].type == "hidden") &&
+        (inputs[9].name == "draftResponse")) {
+      symptomsField = inputs[0].name;
+      var splitDraft = inputs[9].value.split(',');
+      idField = 'entry.' + splitDraft[1];
+      tempField = 'entry.' + splitDraft[5];
+      feelingField = 'entry.' + splitDraft[9];
       makeTdtLinkGenerator();
     }
   }
 }
 
-if (document.location.toString().indexOf("/viewform") != -1) {
-  targetUrl = document.location.toString().replace("viewform", "formResponse");
+if (document.location.toString().indexOf("/formResponse") != -1) {
+  targetUrl = document.location.toString();
   window.setTimeout(initFormGenerator, 1000);
 }
 

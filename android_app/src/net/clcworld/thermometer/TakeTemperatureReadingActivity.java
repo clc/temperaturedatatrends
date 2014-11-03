@@ -31,9 +31,11 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.ScrollView;
@@ -42,6 +44,7 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -104,6 +107,14 @@ public class TakeTemperatureReadingActivity extends Activity {
 
         setContentView(R.layout.temperature);
         mTemperatureEditText = (EditText) findViewById(R.id.temperature);
+        mTemperatureEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
 
         final Button submitButton = (Button) findViewById(R.id.submit);
         submitButton.setText(R.string.save);
@@ -138,18 +149,22 @@ public class TakeTemperatureReadingActivity extends Activity {
             }
         });
 
+        final LinearLayout symptomsList = (LinearLayout) findViewById(R.id.symptoms);
         mFeelingRadioGroup = (RadioGroup) findViewById(R.id.radioGroupFeeling);
         int selectedId = R.id.radioWell;
         if (mFeeling.equals(STATUS_SICK)) {
             selectedId = R.id.radioSick;
+            symptomsList.setVisibility(View.VISIBLE);
         }
         mFeelingRadioGroup.check(selectedId);
         mFeelingRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.radioSick) {
                     mFeeling = STATUS_SICK;
+                    symptomsList.setVisibility(View.VISIBLE);
                 } else {
                     mFeeling = STATUS_WELL;
+                    symptomsList.setVisibility(View.GONE);
                 }
                 Editor editor = mPrefs.edit();
                 editor.putString("lastFeeling", mFeeling);
@@ -179,16 +194,25 @@ public class TakeTemperatureReadingActivity extends Activity {
             }
         });
     }
+    
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 
     public void sendData(final String patientId, final String temperature, final String feeling) {
         final String targetUrl = mPrefs.getString("targetUrl", "");
         final String idField = mPrefs.getString("idField", "");
         final String tempField = mPrefs.getString("tempField", "");
         final String feelingField = mPrefs.getString("feelingField", "");
+        final String symptomsField = mPrefs.getString("symptomsField", "");
+        ArrayList<String> symptoms = new ArrayList<String>();
+        //symptoms.add("Headache");
+        //symptoms.add("Rash");
         if (targetUrl.length() > 0) {
-            UploadUtils.sendData(targetUrl, idField, tempField, feelingField, patientId,
+            UploadUtils.sendData(targetUrl, idField, tempField, feelingField, symptomsField, patientId,
                     temperature,
-                    feeling);
+                    feeling, symptoms);
         }
         Toast.makeText(mSelf, R.string.temperature_recorded,
                 Toast.LENGTH_SHORT).show();
