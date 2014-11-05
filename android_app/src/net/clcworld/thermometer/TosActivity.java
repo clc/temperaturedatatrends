@@ -61,36 +61,46 @@ public class TosActivity extends Activity {
         message.setMovementMethod(LinkMovementMethod.getInstance());
         builder.setView(message);
 
-        builder.setPositiveButton("Accept", new OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                if (isActivated) {
-                    Intent intent = new Intent();
-                    intent.setClass(self, SetupPagerActivity.class);
+        Intent startIntent = getIntent();
+        if (startIntent.getBooleanExtra("VIEW_ONLY", false)) {
+            builder.setPositiveButton("Ok", new OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
                     finish();
-                    startActivity(intent);
-                } else {
-                    // Running without activation; this will only work locally.
+                }
+            });
+        } else {
+            builder.setPositiveButton("Accept", new OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (isActivated) {
+                        Intent intent = new Intent();
+                        intent.setClass(self, SetupPagerActivity.class);
+                        finish();
+                        startActivity(intent);
+                    } else {
+                        // Running without activation; this will only work
+                        // locally.
+                        final SharedPreferences prefs = PreferenceManager
+                                .getDefaultSharedPreferences(self);
+                        Editor editor = prefs.edit();
+                        editor.putBoolean("ISFIRSTRUN", false);
+                        editor.commit();
+                        AlarmScheduler.setupOneTimeAlarm(self, System.currentTimeMillis() + 100);
+                        finish();
+                        return;
+                    }
+                }
+            });
+            builder.setNegativeButton("Decline", new OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
                     final SharedPreferences prefs = PreferenceManager
                             .getDefaultSharedPreferences(self);
                     Editor editor = prefs.edit();
-                    editor.putBoolean("ISFIRSTRUN", false);
+                    editor.clear();
                     editor.commit();
-                    AlarmScheduler.setupOneTimeAlarm(self, System.currentTimeMillis() + 100);
                     finish();
-                    return;
                 }
-            }
-        });
-        builder.setNegativeButton("Decline", new OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                final SharedPreferences prefs = PreferenceManager
-                        .getDefaultSharedPreferences(self);
-                Editor editor = prefs.edit();
-                editor.clear();
-                editor.commit();
-                finish();
-            }
-        });
+            });
+        }
         builder.setCancelable(false);
         builder.create().show();
     }

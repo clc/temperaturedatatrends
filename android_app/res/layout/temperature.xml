@@ -7,36 +7,29 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="hideKeyboard"
         android:orientation="vertical" >
 
         <TextView
             android:id="@+id/timeSinceLastMeasurement"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dip"
+            android:layout_margin="4dip"
+            android:layout_marginLeft="8dip"
             android:text=""
             android:textColor="#FF000000"
             android:textSize="18sp" />
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="3dip"
-            android:background="#FFFFFF" />
 
         <EditText
             android:id="@+id/temperature"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dip"
+            android:layout_margin="4dip"
             android:hint="@string/pleaseentertemperature"
             android:inputType="numberDecimal"
             android:textColor="#FF000000"
             android:textColorHint="#FF808080" />
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="3dip"
-            android:background="#FFFFFF" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -46,7 +39,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dip"
+                android:layout_margin="12dip"
                 android:text="I am feeling..."
                 android:textColor="#FF000000"
                 android:textSize="18sp" />
@@ -61,22 +54,22 @@
                     android:id="@+id/radioWell"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="15dip"
+                    android:layout_margin="12dip"
                     android:checked="true"
+                    android:onClick="hideKeyboard"
                     android:text="@string/radio_well"
                     android:textColor="#FF000000"
-                    android:textSize="20sp"
-                android:onClick="hideKeyboard" />
+                    android:textSize="20sp" />
 
                 <RadioButton
                     android:id="@+id/radioSick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="15dip"
+                    android:layout_margin="12dip"
+                    android:onClick="hideKeyboard"
                     android:text="@string/radio_sick"
                     android:textColor="#FF000000"
-                    android:textSize="20sp"
-                android:onClick="hideKeyboard" />
+                    android:textSize="20sp" />
             </RadioGroup>
         </LinearLayout>
 
@@ -84,68 +77,77 @@
             android:id="@+id/symptoms"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" 
             android:layout_marginLeft="25dip"
-            android:visibility="gone">"
+            android:orientation="vertical"
+            android:visibility="gone" >
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/extremetiredness"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Extreme tiredness"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/musclepain"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Muscle pain"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/headache"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Headache"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/sorethroat"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Sore throat"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/vomiting"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Vomiting"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/diarrhea"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Diarrhea"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/rash"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Rash"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/bleeding"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Unexplained bleeding"
                 android:textSize="18sp" />
 
             <CheckBox
-                android:layout_width="fill_parent"
+                android:id="@+id/painrelief"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="hideKeyboard"
                 android:text="Taking pain relievers"
@@ -176,6 +178,19 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dip"
             android:text="@string/viewhistory"
+            android:textColor="#FF000000" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/viewtos"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dip"
+            android:text=" "
             android:textColor="#FF000000" />
     </LinearLayout>
 
