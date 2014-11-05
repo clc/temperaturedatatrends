@@ -23,7 +23,6 @@
 var recipients = "MY_ACCOUNT@gmail.com";
 var spreadsheetUrl = "https://docs.google.com/spreadsheets/d/SOME_REALLY_RANDOM_LOOKING_STRING/edit";
 var maxTimeBetweenReadings = 12 * 60 * 60 * 1000; // 12 hours * 60 min/hr * 60s/min * 1000 ms/s
-var nameOfMainResponsesSheetTab = "Responses";
 var temperatureThreshold = 100.4; // Any value greater or equal to this will result in an alert email.
 
 // 2. Go to your Spreadsheet and click Tools > Script editor. Copy and paste the entire contents of this file into the script editor.
@@ -59,6 +58,7 @@ function onFormSubmit(e) {
 }
 
 // 5. DONE!
+var nameOfMainResponsesSheetTab = "Form Responses 1";
 
 function setupSummarySheet(){
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
@@ -175,10 +175,9 @@ function sortSheets () {
     ss.moveActiveSheet(j + 1);
   }
   
-  ss.setActiveSheet(ss.getSheetByName(nameOfMainResponsesSheetTab));
   ss.setActiveSheet(ss.getSheetByName("Summary"));
+  ss.moveActiveSheet(0);
+  ss.setActiveSheet(ss.getSheetByName(nameOfMainResponsesSheetTab));
+  ss.moveActiveSheet(0);
 }
-
-
-
 
