@@ -152,7 +152,8 @@ function showChart() {
       chartBuilder.addRange(range1).addRange(range2).addRange(range3)
           .setChartType(Charts.ChartType.LINE)
           .setPosition(2, 2, 0, 0)
-          .setOption('title', sheet.getName());
+          .setOption('title', sheet.getName())
+          .setOption('pointSize', '7');
       sheet.insertChart(chartBuilder.build());
     } else {
       SpreadsheetApp.getUi().alert("Please go a sheet for a specific User ID first.");
