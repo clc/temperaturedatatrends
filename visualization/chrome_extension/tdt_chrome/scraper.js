@@ -104,10 +104,11 @@ var tempField = "";
 var feelingField = "";
 var symptomsField = "";
 var targetUrl = "";
-var destValue = "public%20health%20agency";
+var destValue = "Public%20Health%20Agency";
 
 function outputText() {
   var idValue = document.getElementById("tdtInput").value;
+  idValue = idValue.replace(/\s+/g, ''); // Drop all spaces.
   var linkText = "https://tdt/?";
   linkText = linkText + "idField=" + idField + "&";
   linkText = linkText + "tempField=" + tempField + "&";
