@@ -328,9 +328,11 @@ public class TakeTemperatureReadingActivity extends Activity {
                     patientId,
                     temperature,
                     feeling, symptoms);
+            Toast.makeText(mSelf, R.string.submitted, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(mSelf, R.string.saved, Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(mSelf, R.string.temperature_recorded,
-                Toast.LENGTH_SHORT).show();
+                
         String entry = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(
                 new Date()) + "    " + temperature + "°F    " + feeling + "\n";
         Editor editor = mPrefs.edit();

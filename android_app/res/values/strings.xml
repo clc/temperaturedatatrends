@@ -10,7 +10,8 @@
     <string name="page03">Please confirm your user ID. If your user ID is incorrect, please contact your public health agency.</string>
     <string name="patientid">User ID</string>
     <string name="ok">OK</string>
-    <string name="temperature_recorded">Temperature recorded.</string>
+    <string name="submitted">Submitted.</string>
+    <string name="saved">Saved.</string>
     <string name="timesincelastmeasurement" formatted="false">%d hr and %d min since last measurement.</string>
     <string name="retake">Please take your temperature again.</string>
     <string name="patientidsaved">User ID saved.</string>
