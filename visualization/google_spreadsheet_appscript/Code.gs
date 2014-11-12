@@ -54,6 +54,8 @@ function onFormSubmit(e) {
   var symptoms = e.namedValues['Symptoms'][0];
   updateSummarySheet(timestamp, userId, temperature, feeling, symptoms);
   updateIndividualSheet(timestamp, userId, temperature, feeling, symptoms);
+  // TODO: Uncomment this once issues are fixed.
+  // updateAggregateChart();
   sendEmail(timestamp, userId, temperature, feeling, symptoms);
 }
 
@@ -134,6 +136,67 @@ function updateIndividualSheet(timestamp, userId, temperature, feeling, symptoms
   individualSheet.appendRow([timestamp, temperature, feeling, symptoms, temperatureThreshold]);
 }
 
+function updateAggregateChart(){
+  var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
+  var rawResponsesSheet = targetSpreadSheet.getSheetByName(nameOfMainResponsesSheetTab);
+  var aggregateSheet;
+  try {
+    aggregateSheet = targetSpreadSheet.insertSheet("Aggregate Chart");
+    individualSheet.appendRow(["Timestamp", "Temperature (F)"]);
+  } catch (e) {
+  }
+  aggregateSheet = targetSpreadSheet.getSheetByName("Aggregate Chart");
+  aggregateSheet.clear();
+  var userToIdMap = new Object();
+  var users = new Array();
+  for (var i=2; i <= rawResponsesSheet.getLastRow(); i++) {
+    var userId = rawResponsesSheet.getRange("B" + i + ":" + "B" + i).getValues()[0][0];
+    if (userToIdMap[userId] == null) {
+      userToIdMap[userId] = users.length;
+      users.push(userId);
+    }
+  }
+  var headerData = new Array();
+  headerData.push("Timestamp");
+  for (var i = 0; i < users.length; i++) {
+    headerData.push(users[i] + " (F)");
+  }  
+  aggregateSheet.appendRow(headerData);
+  for (var i=2; i <= rawResponsesSheet.getLastRow(); i++) {
+    var userId = rawResponsesSheet.getRange("B" + i + ":" + "B" + i).getValues()[0][0];
+    var rowData = new Array();
+    for (var j = 0; j<users.length; j++) {
+      rowData.push("");
+    }
+    rowData[0] = rawResponsesSheet.getRange("A" + i + ":" + "A" + i).getValues()[0][0];
+    rowData[userToIdMap[userId] + 1] = rawResponsesSheet.getRange("C" + i + ":" + "C" + i).getValues()[0][0];
+    aggregateSheet.appendRow(rowData);
+  } 
+  showAggregateChart();
+}
+
+function showAggregateChart(){
+  // TODO: Fix this function so it graphs all the entries rather than only hard coding 5.
+  // Also need to delete existing charts.
+  var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
+  var aggregateSheet = targetSpreadSheet.getSheetByName("Aggregate Chart");
+  
+      var range1 = aggregateSheet.getRange("A1:A" + aggregateSheet.getLastRow());
+      var range2 = aggregateSheet.getRange("B1:B" + aggregateSheet.getLastRow());
+      var range3 = aggregateSheet.getRange("C1:C" + aggregateSheet.getLastRow());
+      var range4 = aggregateSheet.getRange("D1:D" + aggregateSheet.getLastRow());
+      var range5 = aggregateSheet.getRange("E1:E" + aggregateSheet.getLastRow());
+      var chartBuilder = aggregateSheet.newChart();
+      chartBuilder.addRange(range1).addRange(range2).addRange(range3).addRange(range4).addRange(range5)
+          .setChartType(Charts.ChartType.LINE)
+          .setPosition(2, 2, 0, 0)
+          .setOption('title', aggregateSheet.getName())
+          .setOption('interpolateNulls', 'true')
+          .setOption('pointSize', '7');
+      aggregateSheet.insertChart(chartBuilder.build());
+
+}
+
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   // Or DocumentApp or FormApp.
@@ -181,4 +244,3 @@ function sortSheets () {
   ss.setActiveSheet(ss.getSheetByName(nameOfMainResponsesSheetTab));
   ss.moveActiveSheet(0);
 }
-
