@@ -22,7 +22,7 @@
 // 1. CONFIGURE THESE TO MATCH WHAT YOU HAVE!!!
 var recipients = "MY_ACCOUNT@gmail.com";
 var spreadsheetUrl = "https://docs.google.com/spreadsheets/d/SOME_REALLY_RANDOM_LOOKING_STRING/edit";
-var maxTimeBetweenReadings = 12 * 60 * 60 * 1000; // 12 hours * 60 min/hr * 60s/min * 1000 ms/s
+var maxHoursBetweenReadings = 12; // Default is 12 hours to enforce twice a day measurement.
 var temperatureThreshold = 100.4; // Any value greater or equal to this will result in an alert email.
 
 // 2. Go to your Spreadsheet and click Tools > Script editor. Copy and paste the entire contents of this file into the script editor.
@@ -36,6 +36,7 @@ function periodicCheck(){
     var rowContents = summarySheet.getSheetValues(i, 1, 1, 5)[0];
     var msTimestamp = Date.parse(rowContents[1]);
     var currentTime = new Date().getTime();
+    var maxTimeBetweenReadings = maxHoursBetweenReadings * 60 * 60 * 1000; // x hours * 60 min/hr * 60s/min * 1000 ms/s
     if (msTimestamp + maxTimeBetweenReadings < currentTime) {
       MailApp.sendEmail(recipients, "[TDT ALERT]: Missed latest temperature check in from " + rowContents[0], rowContents[0] + " last checked in at " + rowContents[1]);
       var target = "B" + i;
@@ -54,18 +55,25 @@ function onFormSubmit(e) {
   var symptoms = e.namedValues['Symptoms'][0];
   updateSummarySheet(timestamp, userId, temperature, feeling, symptoms);
   updateIndividualSheet(timestamp, userId, temperature, feeling, symptoms);
-  // TODO: Uncomment this once issues are fixed.
-  // updateAggregateChart();
+  // TODO: Uncomment this once this is better tested.
+  // updateAggregateChart(timestamp, userId, temperature);
   sendEmail(timestamp, userId, temperature, feeling, symptoms);
 }
 
 // 5. DONE!
+
+//-------------------------------------------------------
+
 var nameOfMainResponsesSheetTab = "Form Responses 1";
+var nameOfSummaryTab = "Summary";
+var nameOfAggregateChartTab = "Aggregate Chart";
+var keyForUserToIdMap = "USER_TO_INDEX_MAP";
+var keyForUsersArray = "USERS_ARRAY";
 
 function setupSummarySheet(){
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
   try {
-    var summarySheet = targetSpreadSheet.insertSheet("Summary");
+    var summarySheet = targetSpreadSheet.insertSheet(nameOfSummaryTab);
     summarySheet.appendRow(["UserID", "Last entry", "Last temperature (F)", "Max temperature (F)", "Feeling", "Symptoms"]);
   } catch (e) {
   }
@@ -91,7 +99,7 @@ function updateSummarySheet(timestamp, userId, temperature, feeling, symptoms) {
   var summarySheet;
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
   setupSummarySheet();
-  summarySheet = targetSpreadSheet.getSheetByName("Summary");
+  summarySheet = targetSpreadSheet.getSheetByName(nameOfSummaryTab);
   var maxTemp = temperature;
   for (var i=1; i <= summarySheet.getLastRow(); i++) {
     var rowContents = summarySheet.getSheetValues(i, 1, 1, 5)[0];
@@ -136,17 +144,39 @@ function updateIndividualSheet(timestamp, userId, temperature, feeling, symptoms
   individualSheet.appendRow([timestamp, temperature, feeling, symptoms, temperatureThreshold]);
 }
 
-function updateAggregateChart(){
+function updateAggregateChart(timestamp, userId, temperature){
+  try {
+    var userToIdMap = JSON.parse(PropertiesService.getScriptProperties().getProperty(keyForUserToIdMap));
+    var users = JSON.parse(PropertiesService.getScriptProperties().getProperty(keyForUsersArray));
+    if (userToIdMap[userId] == null) {
+      forceUpdateAggregateChart();
+      return;
+    }
+    var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
+    var aggregateSheet = targetSpreadSheet.getSheetByName(nameOfAggregateChartTab);
+    var rowData = new Array();
+    for (var j = 0; j<users.length; j++) {
+      rowData.push("");
+    }
+    rowData[0] = timestamp;
+    rowData[userToIdMap[userId] + 1] = temperature;
+    aggregateSheet.appendRow(rowData);
+  } catch (e) {
+    forceUpdateAggregateChart();
+  }
+}
+
+function forceUpdateAggregateChart(){
   // TODO: Be smarter here - only do a destructive full redraw of the aggregate chart if it's a new user.
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
   var rawResponsesSheet = targetSpreadSheet.getSheetByName(nameOfMainResponsesSheetTab);
   var aggregateSheet;
   try {
-    aggregateSheet = targetSpreadSheet.insertSheet("Aggregate Chart");
+    aggregateSheet = targetSpreadSheet.insertSheet(nameOfAggregateChartTab);
     individualSheet.appendRow(["Timestamp", "Temperature (F)"]);
   } catch (e) {
   }
-  aggregateSheet = targetSpreadSheet.getSheetByName("Aggregate Chart");
+  aggregateSheet = targetSpreadSheet.getSheetByName(nameOfAggregateChartTab);
   var userToIdMap = new Object();
   var users = new Array();
   for (var i=2; i <= rawResponsesSheet.getLastRow(); i++) {
@@ -179,13 +209,16 @@ function updateAggregateChart(){
     rowData[userToIdMap[userId] + 1] = rawResponsesSheet.getRange("C" + i + ":" + "C" + i).getValues()[0][0];
     aggregateSheet.appendRow(rowData);
   } 
-  // Graph everything
-  drawAggregateChart();
+  // Graph everything.
+  drawAggregateChart();  
+  // Save state
+  PropertiesService.getScriptProperties().setProperty(keyForUserToIdMap, JSON.stringify(userToIdMap));
+  PropertiesService.getScriptProperties().setProperty(keyForUsersArray, JSON.stringify(users));
 }
 
 function drawAggregateChart(){  
   var targetSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
-  var aggregateSheet = targetSpreadSheet.getSheetByName("Aggregate Chart");
+  var aggregateSheet = targetSpreadSheet.getSheetByName(nameOfAggregateChartTab);
   var chartBuilder = aggregateSheet.newChart();
   chartBuilder.setChartType(Charts.ChartType.LINE)
           .setPosition(2, 2, 0, 0)
@@ -214,7 +247,9 @@ function onOpen() {
 
 function showChart() {
  var sheet = SpreadsheetApp.getActiveSheet();
-    if ((sheet.getName() != nameOfMainResponsesSheetTab) && (sheet.getName() != "Summary")) {
+    if (sheet.getName() == nameOfAggregateChartTab) {
+      forceUpdateAggregateChart();
+    } else if ((sheet.getName() != nameOfMainResponsesSheetTab) && (sheet.getName() != nameOfSummaryTab)) {
       var range1 = sheet.getRange("A1:A" + sheet.getLastRow());
       var range2 = sheet.getRange("B1:B" + sheet.getLastRow());
       var range3 = sheet.getRange("E1:E" + sheet.getLastRow());
@@ -246,7 +281,9 @@ function sortSheets () {
     ss.moveActiveSheet(j + 1);
   }
   
-  ss.setActiveSheet(ss.getSheetByName("Summary"));
+  ss.setActiveSheet(ss.getSheetByName(nameOfAggregateChartTab));
+  ss.moveActiveSheet(0);
+  ss.setActiveSheet(ss.getSheetByName(nameOfSummaryTab));
   ss.moveActiveSheet(0);
   ss.setActiveSheet(ss.getSheetByName(nameOfMainResponsesSheetTab));
   ss.moveActiveSheet(0);
