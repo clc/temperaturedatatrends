@@ -1,0 +1,90 @@
+<html>
+<body>
+<h1>Temperature Data Trends Link Generator</h1>
+<br><br><br>
+<h3>Instructions</h3>
+<p>
+<ol>
+<li>Open your Temperature Data Trends form in Google Drive, then click on "Responses" > "Get pre-filled URL"</li>
+<li>Enter "user" for the UserID, "100" for the Temperature, "Sick" for Feeling, check "Headache" as the Symptom, then click "Submit".</li>
+<li>Paste the pre-filled link into the form below, enter the user ID and time to wait </li>
+</ol>
+</p>
+<br><br><br>
+<h3>Enter Pre-filled URL here:</h3>
+<input id="prefill" size="300"></input>
+<br><br><br>
+<h3>Agency Name:</h3>
+<input id="agency" size="20" value="Public Health Agency"></input>
+<br><br><br>
+<h3>User ID:</h3>
+<input id="userid" size="30"></input>
+<br><br><br>
+<h3>Hours to wait between promptings:</h3>
+<input id="hours" size="5" value="1"></input>
+<br><br><br>
+<button id="generate" onclick="generate()">GENERATE LINKS</button>
+<br><br><br>
+<h3>Output:</h3>
+<textarea id="output" cols="100" rows="20"></textarea>
+</body>
+<script>
+function generate(){
+  var prefill = (document.getElementById("prefill").value).split("?");
+  var targetUrl = prefill[0];
+  if ((targetUrl.indexOf("https://docs.google.com/") != 0) || (targetUrl.indexOf("viewform") == -1)) {
+    alert("Invalid prefill link");
+    return;
+  }
+  var args = prefill[1].split("&");
+  if (args.length != 4) {
+    alert("Invalid prefill link");
+    return;
+  }
+  if (args[0].toLowerCase().indexOf("=user") == -1) {
+    alert("Invalid prefill link");
+  }
+  if (args[1].indexOf("=100") == -1) {
+    alert("Invalid prefill link");
+    return;
+  }
+  if (args[2].indexOf("=Sick") == -1) {
+    alert("Invalid prefill link");
+    return;
+  }
+  if (args[3].indexOf("=Headache") == -1) {
+    alert("Invalid prefill link");
+    return;
+  }
+  var agency = document.getElementById("agency").value + "";
+  if (agency.length == 0) {
+    alert("Invalid agency");
+    return;
+  }
+  agency = encodeURIComponent(agency.trim());
+  var idValue = document.getElementById("userid").value + "";
+  if (idValue.length == 0) {
+    alert("Invalid userid");
+    return;
+  }
+  idValue = idValue.replace(/\s/g, "");
+  var idField = args[0].split("=")[0];
+  var tempField = args[1].split("=")[0];
+  var feelingField = args[2].split("=")[0];
+  var symptomsField = args[3].split("=")[0];
+
+  var tdtLink = "https://tdt/?";
+  tdtLink = tdtLink + "idField=" + idField + "&";
+  tdtLink = tdtLink + "tempField=" + tempField + "&";
+  tdtLink = tdtLink + "feelingField=" + feelingField + "&";
+  tdtLink = tdtLink + "symptomsField=" + symptomsField + "&";
+  tdtLink = tdtLink + "idValue=" + idValue + "&";
+  tdtLink = tdtLink + "destValue=" + agency + "&";
+  tdtLink = tdtLink + "targetUrl=" + targetUrl.replace("viewform", "formResponse");
+
+  var webformLink = targetUrl + "?" + idField + "=" + idValue;
+
+  document.getElementById("output").value = "TDT Link:\n" + tdtLink + "\n\n\n\nWebform Link:\n" + webformLink;
+}
+</script>
+</html>
