@@ -50,8 +50,8 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Shows the UI prompt for taking a temperature measurement and giving a status
- * update about how you are feeling (well vs sick).
+ * Shows the UI prompt for taking a temperature measurement and giving a status update about how you
+ * are feeling (well vs sick).
  * 
  * @author Charles L Chen (clchen@google.com)
  */
@@ -332,7 +332,7 @@ public class TakeTemperatureReadingActivity extends Activity {
         } else {
             Toast.makeText(mSelf, R.string.saved, Toast.LENGTH_SHORT).show();
         }
-                
+
         String entry = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(
                 new Date()) + "    " + temperature + "°F    " + feeling + "\n";
         Editor editor = mPrefs.edit();

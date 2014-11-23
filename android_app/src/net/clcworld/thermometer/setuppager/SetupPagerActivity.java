@@ -56,6 +56,10 @@ public class SetupPagerActivity extends FragmentActivity {
         mViewPager.setAdapter(mAdapter);
         mViewPager.setCurrentItem(0);
     }
+    
+    public void jumpToPage(int page){
+        mViewPager.setCurrentItem(page, true);
+    }
 
     private void setTab() {
         mViewPager.setOnPageChangeListener(new OnPageChangeListener() {

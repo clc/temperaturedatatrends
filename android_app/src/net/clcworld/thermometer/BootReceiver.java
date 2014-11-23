@@ -23,8 +23,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 /**
- * Catches when the device is switched on to prompt the user for a temperature
- * reading and set up the first recurring alarm prompt.
+ * Catches when the device is switched on to prompt the user for a temperature reading and set up
+ * the first recurring alarm prompt.
  * 
  * @author Charles L Chen (clchen@google.com)
  */

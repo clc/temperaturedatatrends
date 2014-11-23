@@ -17,7 +17,6 @@
         android:layout_margin="10dip"
         android:gravity="center"
         android:orientation="horizontal" >
-
         <net.clcworld.thermometer.setuppager.CircleView
             android:id="@+id/circle00"
             android:layout_width="30dip"

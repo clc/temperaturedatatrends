@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 
 /**
  * Adapter class for the setup wizard view pager.
@@ -32,7 +33,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public ViewPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
-
+        
     }
 
     @Override

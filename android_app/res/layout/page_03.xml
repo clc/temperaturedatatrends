@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dip"
         android:textColor="#FF000000"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:text="@string/page03" />
     <EditText
         android:id="@+id/patientId"

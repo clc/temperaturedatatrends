@@ -26,8 +26,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Accepts an activation link for setting up all the necessary fields for using
- * Temperature Data Logger.
+ * Accepts an activation link for setting up all the necessary fields for using Temperature Data
+ * Logger.
  * 
  * @author Charles L Chen (clchen@google.com)
  */
@@ -70,7 +70,7 @@ public class LinkSetupActivity extends Activity {
             } else if (arg.startsWith("feelingField=")) {
                 feelingField = arg.replace("feelingField=", "");
             } else if (arg.startsWith("symptomsField=")) {
-            	symptomsField = arg.replace("symptomsField=", "");
+                symptomsField = arg.replace("symptomsField=", "");
             } else if (arg.startsWith("idValue=")) {
                 idValue = arg.replace("idValue=", "");
             } else if (arg.startsWith("destValue=")) {

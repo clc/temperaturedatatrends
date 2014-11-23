@@ -22,6 +22,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 import net.clcworld.thermometer.R;
 
@@ -42,6 +44,14 @@ public class Page02Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.page_02, null);
+        Button next = (Button) root.findViewById(R.id.next);
+        final SetupPagerActivity parent = (SetupPagerActivity) this.getActivity();
+        next.setOnClickListener(new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                parent.jumpToPage(3);
+            }            
+        });        
         return root;
     }
 

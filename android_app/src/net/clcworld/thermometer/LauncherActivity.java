@@ -23,8 +23,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 /**
- * Main entry point to the app. Determines whether to show the take temperature
- * prompt or to take user through the initial setup process.
+ * Main entry point to the app. Determines whether to show the take temperature prompt or to take
+ * user through the initial setup process.
  * 
  * @author Charles L Chen (clchen@google.com)
  */

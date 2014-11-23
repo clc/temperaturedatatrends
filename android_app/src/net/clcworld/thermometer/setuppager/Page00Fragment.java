@@ -19,9 +19,12 @@ package net.clcworld.thermometer.setuppager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import net.clcworld.thermometer.R;
 
@@ -34,7 +37,6 @@ public class Page00Fragment extends Fragment {
 
     public static Fragment newInstance(Context context) {
         Page00Fragment f = new Page00Fragment();
-
         return f;
     }
 
@@ -42,7 +44,14 @@ public class Page00Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.page_00, null);
+        Button next = (Button) root.findViewById(R.id.next);
+        final SetupPagerActivity parent = (SetupPagerActivity) this.getActivity();
+        next.setOnClickListener(new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                parent.jumpToPage(1);
+            }            
+        });        
         return root;
     }
-
 }

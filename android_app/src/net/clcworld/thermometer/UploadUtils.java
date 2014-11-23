@@ -40,7 +40,8 @@ public class UploadUtils {
             final String targetUrl, final String idField, final String tempField,
             final String feelingField,
             final String symptomsField,
-            final String id, final String temp, final String feeling, final ArrayList<String> symptoms) {
+            final String id, final String temp, final String feeling,
+            final ArrayList<String> symptoms) {
         new Thread(new Runnable() {
             public void run() {
                 // Create a new HttpClient and Post Header
@@ -50,23 +51,24 @@ public class UploadUtils {
                 try {
                     // Add your data
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(
-                           2);
+                            2);
                     nameValuePairs.add(new BasicNameValuePair(
                             idField, id));
                     nameValuePairs.add(new BasicNameValuePair(
                             tempField, temp));
                     nameValuePairs.add(new BasicNameValuePair(
                             feelingField, feeling));
-                    for (int i=0; i<symptoms.size(); i++){
+                    for (int i = 0; i < symptoms.size(); i++) {
                         nameValuePairs.add(new BasicNameValuePair(
-                        		symptomsField, symptoms.get(i)));
+                                symptomsField, symptoms.get(i)));
                     }
-                    // Must put this extra pageHistory field here, otherwise Forms will reject the symptoms.
+                    // Must put this extra pageHistory field here, otherwise Forms will reject the
+                    // symptoms.
                     nameValuePairs.add(new BasicNameValuePair(
                             "pageHistory", "0,1"));
 
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                    
+
                     // Execute HTTP Post Request
                     HttpResponse response = httpclient.execute(httppost);
                 } catch (ClientProtocolException e) {
