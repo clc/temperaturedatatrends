@@ -33,38 +33,43 @@ function generate(){
   var prefill = (document.getElementById("prefill").value).split("?");
   var targetUrl = prefill[0];
   if ((targetUrl.indexOf("https://docs.google.com/") != 0) || (targetUrl.indexOf("viewform") == -1)) {
-    alert("Invalid prefill link");
+    alert("Invalid prefill link.");
     return;
   }
   var args = prefill[1].split("&");
   if (args.length != 4) {
-    alert("Invalid prefill link");
+    alert("Invalid prefill link.");
     return;
   }
   if (args[0].toLowerCase().indexOf("=user") == -1) {
-    alert("Invalid prefill link");
+    alert("Invalid prefill link.");
   }
   if (args[1].indexOf("=100") == -1) {
-    alert("Invalid prefill link");
+    alert("Invalid prefill link.");
     return;
   }
   if (args[2].indexOf("=Sick") == -1) {
-    alert("Invalid prefill link");
+    alert("Invalid prefill link.");
     return;
   }
   if (args[3].indexOf("=Headache") == -1) {
-    alert("Invalid prefill link");
+    alert("Invalid prefill link.");
     return;
   }
   var agency = document.getElementById("agency").value + "";
   if (agency.length == 0) {
-    alert("Invalid agency");
+    alert("Invalid agency.");
     return;
   }
   agency = encodeURIComponent(agency.trim());
   var idValue = document.getElementById("userid").value + "";
   if (idValue.length == 0) {
-    alert("Invalid userid");
+    alert("Invalid userid.");
+    return;
+  }
+  var hours = parseInt(document.getElementById("hours").value);
+  if (isNaN(hours) || (hours < 1)) {
+    alert("Invalid hours.");
     return;
   }
   idValue = idValue.replace(/\s/g, "");
@@ -80,6 +85,7 @@ function generate(){
   tdtLink = tdtLink + "symptomsField=" + symptomsField + "&";
   tdtLink = tdtLink + "idValue=" + idValue + "&";
   tdtLink = tdtLink + "destValue=" + agency + "&";
+  tdtLink = tdtLink + "interval=" + hours + "&";
   tdtLink = tdtLink + "targetUrl=" + targetUrl.replace("viewform", "formResponse");
 
   var webformLink = targetUrl + "?" + idField + "=" + idValue;
