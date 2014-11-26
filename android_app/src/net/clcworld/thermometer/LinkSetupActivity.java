@@ -58,6 +58,7 @@ public class LinkSetupActivity extends Activity {
         String symptomsField = "";
         String idValue = "";
         String destValue = "";
+        String interval = "";
 
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
@@ -75,6 +76,8 @@ public class LinkSetupActivity extends Activity {
                 idValue = arg.replace("idValue=", "");
             } else if (arg.startsWith("destValue=")) {
                 destValue = arg.replace("destValue=", "");
+            } else if (arg.startsWith("interval=")) {
+                interval = arg.replace("interval=", "");
             }
         }
 
@@ -87,6 +90,14 @@ public class LinkSetupActivity extends Activity {
             Toast.makeText(this, "Invalid TDT link.", Toast.LENGTH_LONG).show();
             finish();
             return;
+        }
+        
+        try {
+            if (Integer.parseInt(interval) < 1) {
+                interval = "1";
+            }
+        } catch (Exception e){
+            interval = "1";
         }
 
         final SharedPreferences prefs = PreferenceManager
@@ -114,6 +125,7 @@ public class LinkSetupActivity extends Activity {
         edit.putString("symptomsField", symptomsField);
         edit.putString("ID", idValue);
         edit.putString("DEST", destValue.replaceAll("%20", " "));
+        edit.putInt("INTERVAL", Integer.parseInt(interval));
         edit.commit();
 
         finish();

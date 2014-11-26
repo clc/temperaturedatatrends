@@ -1,32 +1,30 @@
 <html>
 <body>
 <h1>Temperature Data Trends Link Generator</h1>
-<br><br>
 <h3>Instructions</h3>
 <p>
 <ol>
-<li>Open your Temperature Data Trends form in Google Drive, then click on "Responses" > "Get pre-filled URL"</li>
-<li>Enter "user" for the UserID, "100" for the Temperature, "Sick" for Feeling, check "Headache" as the Symptom, then click "Submit".</li>
-<li>Paste the pre-filled link into the form below, enter the user ID and time to wait </li>
+<li>Open your Temperature Data Trends form in Google Drive, then click on <b>Responses</b> > <b>Get pre-filled URL</b>.</li>
+<li>Enter "user" for the UserID, "100" for the Temperature, "Sick" for Feeling, check "Headache" as the Symptom, then click <b>Submit</b>.</li>
+<li>Paste the pre-filled link into the form below, enter your agency name, the hours to wait between asking the user for their temperature, and the user ID.</li>
 </ol>
 </p>
-<br><br>
-<h3>Enter Pre-filled URL here:</h3>
-<input id="prefill" size="300"></input>
-<br><br>
-<h3>Agency Name:</h3>
+<h3>Enter Pre-filled URL here</h3>
+<input id="prefill" size="200"></input>
+<br>
+<h3>Agency Name</h3>
 <input id="agency" size="20" value="Public Health Agency"></input>
-<br><br>
-<h3>Hours to wait between promptings:</h3>
+<br>
+<h3>Hours to wait between promptings</h3>
 <input id="hours" size="5" value="1"></input>
-<br><br>
-<h3>User ID:</h3>
+<br>
+<h3>User ID</h3>
 <input id="userid" size="30"></input>
-<br><br>
+<br>
 <button id="generate" onclick="generate()">Generate links</button>
-<br><br>
-<h3>Output:</h3>
-<textarea id="output" cols="100" rows="20"></textarea>
+<br>
+<h3>Output</h3>
+<textarea id="output" cols="150" rows="13"></textarea>
 </body>
 <script>
 function generate(){

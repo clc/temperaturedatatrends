@@ -38,7 +38,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .getDefaultSharedPreferences(context);
         long lastMeasuredTime = prefs.getLong("LAST_READING", 0);
         long lastAlarmedTime = prefs.getLong("LAST_ALARM", 0);
-        long intervalMillis = AlarmScheduler.ALARM_EVERY_N_MINUTES * 60 * 1000;
+        long intervalMillis = AlarmScheduler.ALARM_EVERY_N_MINUTES * prefs.getInt("INTERVAL", 1) * 60 * 1000; // INTERVAL is in hours, multiply by 60 to get minutes.
         long currentTime = System.currentTimeMillis();
         long measuredDelta = currentTime - lastMeasuredTime;
         long alarmDelta = currentTime - lastAlarmedTime;
