@@ -35,7 +35,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -56,6 +55,7 @@ import java.util.concurrent.TimeUnit;
  * @author Charles L Chen (clchen@google.com)
  */
 public class TakeTemperatureReadingActivity extends Activity {
+    private final long WARNING_THRESHOLD = 12 * 60 * 60 * 1000; // Time in ms at which to trigger a special warning popup ("about to miss the 12 hr mark"). 
     private final int NOTIFICATION_NUMBER = 1337;
     private static final String STATUS_WELL = "Well";
     private static final String STATUS_SICK = "Sick";
@@ -76,6 +76,7 @@ public class TakeTemperatureReadingActivity extends Activity {
     private SharedPreferences mPrefs;
     private NotificationManager mNotificationManager;
     private String mHistory = "";
+    private boolean mIsActivated = false;
 
     /** Called when the activity is first created. */
     @Override
@@ -118,6 +119,7 @@ public class TakeTemperatureReadingActivity extends Activity {
         setContentView(R.layout.temperature);
         mTemperatureEditText = (EditText) findViewById(R.id.temperature);
         mTemperatureEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     hideKeyboard(v);
@@ -170,6 +172,7 @@ public class TakeTemperatureReadingActivity extends Activity {
             submitButton.setText(getString(R.string.submit) + destination);
         }
         submitButton.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View arg0) {
                 String tempString = mTemperatureEditText.getText().toString();
                 try {
@@ -257,6 +260,7 @@ public class TakeTemperatureReadingActivity extends Activity {
         }
         mFeelingRadioGroup.check(selectedId);
         mFeelingRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.radioSick) {
                     mFeeling = STATUS_SICK;
@@ -278,6 +282,7 @@ public class TakeTemperatureReadingActivity extends Activity {
             historyButton.setVisibility(View.GONE);
         }
         historyButton.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                         mSelf);
@@ -297,10 +302,13 @@ public class TakeTemperatureReadingActivity extends Activity {
 
         Button viewTosButton = (Button) findViewById(R.id.viewtos);
         viewTosButton.setText(R.string.tos_title_local);
+        mIsActivated = false;
         if (destination.length() > 0) {
+            mIsActivated = true;
             viewTosButton.setText(R.string.tos_title_publichealth);
         }
         viewTosButton.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 Intent viewTosIntent = new Intent();
                 viewTosIntent.setClass(mSelf, TosActivity.class);
@@ -312,7 +320,7 @@ public class TakeTemperatureReadingActivity extends Activity {
 
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(
-                Activity.INPUT_METHOD_SERVICE);
+                Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
@@ -356,6 +364,15 @@ public class TakeTemperatureReadingActivity extends Activity {
             final TextView timeSinceLastReadingTextView = (TextView) findViewById(
                     R.id.timeSinceLastMeasurement);
             timeSinceLastReadingTextView.setText(timeSinceLastReading);
+            
+            if (mIsActivated && (timeDelta >= WARNING_THRESHOLD)){
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setCancelable(false);
+                builder.setTitle(R.string.warning_title);
+                builder.setMessage(R.string.warning_message);
+                builder.setPositiveButton(R.string.ok, null);
+                builder.show();
+            }
         }
     }
 }
