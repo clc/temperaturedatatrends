@@ -77,6 +77,7 @@ public class TakeTemperatureReadingActivity extends Activity {
     private NotificationManager mNotificationManager;
     private String mHistory = "";
     private boolean mIsActivated = false;
+    private AlertDialog mWarningDialog;
 
     /** Called when the activity is first created. */
     @Override
@@ -366,12 +367,17 @@ public class TakeTemperatureReadingActivity extends Activity {
             timeSinceLastReadingTextView.setText(timeSinceLastReading);
             
             if (mIsActivated && (timeDelta >= WARNING_THRESHOLD)){
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setCancelable(false);
-                builder.setTitle(R.string.warning_title);
-                builder.setMessage(R.string.warning_message);
-                builder.setPositiveButton(R.string.ok, null);
-                builder.show();
+            	if (mWarningDialog == null){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setCancelable(false);
+                    builder.setTitle(R.string.warning_title);
+                    builder.setMessage(R.string.warning_message);
+                    builder.setPositiveButton(R.string.ok, null);
+                    mWarningDialog = builder.create();
+            	}
+            	if (!mWarningDialog.isShowing()){
+            		mWarningDialog.show();
+            	}
             }
         }
     }
